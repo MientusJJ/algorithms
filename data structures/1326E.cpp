@@ -121,11 +121,11 @@ void upd(int l, int r, int val, int indx, int LL, int RR)
 		sTree[indx * 2].lazy += sTree[indx].lazy;
 		sTree[indx * 2+1].lazy += sTree[indx].lazy;
 		sTree[indx * 2].val += sTree[indx].lazy;
-		sTree[indx * 2].val += sTree[indx].lazy;
+		sTree[indx * 2+1].val += sTree[indx].lazy;
 		sTree[indx].lazy = 0;
 	}
 	upd(l, r, val, indx * 2, LL, mid);
 	upd(l, r, val, indx * 2 + 1, mid + 1, RR);
-	sTree[indx].val = max(sTree[indx * 2].val, sTree[indx + 2 + 1].val);
+	sTree[indx].val = max(sTree[indx * 2].val, sTree[indx * 2 + 1].val);
 	return;
 }
