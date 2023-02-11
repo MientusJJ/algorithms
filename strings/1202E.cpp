@@ -56,113 +56,92 @@ fstream out("C:/Temp/output.txt", ios::out | ios::trunc);
 #define cout out
 #endif // DEBUG 
 
-struct trie
+struct bigTrie
 {
-	int tab[maxN];
-	int cnt = 0;
+    int trie[maxik][maxN];
+    int leaf[maxik];
+    int next[maxik];
+    int ans[maxik];
+    int cnt = 0;
+    void insert(string str)
+    {
+        int root = 0;
+    	for(int i=0;i<str.size();i++)
+	    {
+            int c = str[i] - 'a';
+    		if(!trie[root][c])
+    		{
+                trie[root][c] = ++cnt;
+    		}
+            root = trie[root][c];
+	    }
+        leaf[root]++;
+    }
+    void build()
+    {
+        queue<int> q;
+        for(int i{0};i<maxN;i++)
+        {
+	        if(trie[0][i])
+	        {
+                q.push(trie[0][i]);
+	        }
+        }
+        while(q.size())
+        {
+            int u = q.front();
+            q.pop();
+            for(int i=0;i<maxN;i++)
+            {
+	            if(!trie[u][i])
+	            {
+                    trie[u][i] = trie[next[u]][i];
+	            }
+                else
+                {
+                    next[trie[u][i]] = trie[next[u]][i];
+                    q.push(trie[u][i]);
+                }
+            }
+            leaf[u] += leaf[next[u]];
+        }
+    }
+    void makeAns(string s)
+    {
+        int j = 0;
+        for(int i=0;i<s.size();i++)
+        {
+            j = trie[j][s[i] - 'a'];
+        	ans[i] = leaf[j];
+        }
+    }
 };
-trie mTrie[maxik][2];
-void prefix(const string& str, int p, int k);
 int n;
 string t;
-vector <string> s;
-int sqrtik,cnt;
-int sum[2][maxik];
-int v[maxik * 2];
-int check(int pos,int k, string str = t);
+bigTrie A, B;
 int main()
 {
-	es;
-	cin >> t;
-	cin >> n;
-	for(int i=1;i<=n;i++)
-	{
-		string str;
-		cin >> str;
-		s.push_back(str);
-	}
-	for(int k=0;k<2;k++)
-	{
-		cnt = 1;
-		for(int i=0;i<n;i++)
-		{
-			if(s[i].size()>sqrt(t.size())+1)
-			{
-				prefix(" " + s[i] + "#" + t+"@",s[i].size(),k);
-			}
-			else
-			{
-				int root = 1;
-				for(int j=0;j<s[i].size();j++)
-				{
-					if(!mTrie[root][k].tab[s[i][j] - 'a'])
-					{
-						mTrie[root][k].tab[s[i][j] - 'a'] = ++cnt;
-					}
-					root = mTrie[root][k].tab[s[i][j] - 'a'];
-					if (j + 1 == s[i].size())
-					{
-						mTrie[root][k].cnt++;
-						break;
-					}
-				}
-			}
-		}
-		for(int i=0;i<t.size();i++)
-		{
-			sum[k][i] += check(i,k);
-		}
-		reverse(all(t));
-		for(int i=0;i<n;i++)
-		{
-			reverse(all(s[i]));
-		}
-
-	}
-	ll ans = 0;
-	for(int i=0;i<t.size();i++)
-	{
-		ans += 1ll * sum[0][i] * sum[1][t.size() - i];
-	}
-	cout << ans;
-	return 0;
-}
-void prefix(const string& str, int p, int k)
-{
-	v[0] = v[1] = 0;
-	for(int i=2;i<str.size();i++)
-	{
-		int pref = v[i - 1];
-		while(pref && str[pref+1]!=str[i])
-		{
-			pref = v[pref];
-		}
-		if(str[pref+1]==str[i])
-		{
-			pref++;
-		}
-		v[i] = pref;
-		if(v[i]>=p)
-		{
-			sum[k][i - 1 - p]++;
-		}
-	}
-	return;
-}
-int check(int pos,int k, string str)
-{
-	int root = 1;
-	int ans = 0;
-	while (pos <= str.size())
-	{
-		int c = str[pos] - 'a';
-		ans += mTrie[root][k].cnt;
-		if(!mTrie[root][k].tab[c])
-		{
-			break;
-		}
-		root = mTrie[root][k].tab[c];
-		pos++;
-	}
-	return ans;
+    es;
+    cin >> t;
+    cin >> n;
+    while(n--)
+    {
+        string str;
+        cin >> str;
+        A.insert(str);
+        reverse(all(str));
+        B.insert(str);
+    }
+    A.build();
+    B.build();
+    A.makeAns(t);
+    reverse(all(t));
+    B.makeAns(t);
+    ll ans = 0;
+    for(int i=0;i<t.size();i++)
+    {
+        ans += 1ll * A.ans[i] * B.ans[t.size() - 2 - i];
+    }
+    cout << ans;
+    return 0;
 }
